@@ -1,17 +1,17 @@
-const UserModel = require("../models/UserModel");
-const bcryptjs = reuqire("bcryptjs");
+const UserModel = require("../model/UserModel");
+const bcryptjs = require("bcryptjs");
 
 async function registerUser(request, response) {
   try {
     const { name, email, password, profile_pic } = request.body;
     const checkEmail = await UserModel.findOne({ email });
 
-    if (checkEmail) {
-      return response.status(400).json({
-        message: "Already user exits",
-        error: true,
-      });
-    }
+    // if (checkEmail) {
+    //   return response.status(400).json({
+    //     message: "Already user exits",
+    //     error: true,
+    //   });
+    // }
 
     const salt = await bcryptjs.genSalt(10);
     const hashpassword = await bcryptjs.hash(password, salt);
