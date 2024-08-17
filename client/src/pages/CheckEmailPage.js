@@ -3,6 +3,7 @@ import React, { useState } from "react";
 import toast from "react-hot-toast";
 import { Link, useNavigate } from "react-router-dom";
 import { PiUserCircle } from "react-icons/pi";
+import Avatar from "../components/Avatar";
 const CheckEmailPage = () => {
   const [data, setData] = useState({
     email: "",
@@ -35,7 +36,9 @@ const CheckEmailPage = () => {
         setData({
           email: "",
         });
-        navigate("/password");
+        navigate("/password", {
+          state: response?.data,
+        });
       }
     } catch (error) {
       toast.error(error?.response?.data.message);
@@ -44,8 +47,8 @@ const CheckEmailPage = () => {
   return (
     <div className="mt-5">
       <div className="mt-5 bg-white w-full max-w-md mx:2 mx-auto rounded overflow-hidden p-4 md:mx-auto">
-        <div>
-          <PiUserCircle size={80} />
+        <div className="w-fit mx-auto mb-2">
+          <Avatar width={70} height={70} />
         </div>
         <h3>Welcome to ChatApp</h3>
         <form className="grid gap-4 mt-3" onSubmit={handleSubmit}>
