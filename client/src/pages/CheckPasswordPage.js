@@ -4,6 +4,9 @@ import toast from "react-hot-toast";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { PiUserCircle } from "react-icons/pi";
 import Avatar from "../components/Avatar";
+import { useDispatch } from "react-redux";
+import { setToken, setUser } from "../redux/userSlice";
+
 const CheckPasswordPage = () => {
   const [data, setData] = useState({
     email: "",
@@ -11,6 +14,7 @@ const CheckPasswordPage = () => {
 
   const navigate = useNavigate();
   const location = useLocation();
+  const dispatch = useDispatch();
 
   const handleOnChange = (e) => {
     const { name, value } = e.target;
@@ -40,7 +44,10 @@ const CheckPasswordPage = () => {
       });
 
       toast.success(response.data.message);
-
+      if (response.data.success) {
+        dispatch(setToken(response?.data?.token));
+        localStorage.setItem("token", response?.data?.token);
+      }
       if (response.data.success) {
         setData({
           password: "",

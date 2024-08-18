@@ -4,7 +4,7 @@ import { PiUserCircle } from "react-icons/pi";
 const Avatar = ({ userID, name, imageUrl, width, height }) => {
   let avatarName = "";
   if (name) {
-    const splitName = name.split(" ");
+    const splitName = name?.trim().split(" ");
     if (splitName.length > 1) {
       avatarName = splitName[0][0] + splitName[1][0];
     } else {
@@ -39,7 +39,7 @@ const Avatar = ({ userID, name, imageUrl, width, height }) => {
         />
       ) : name ? (
         <div
-          className={`flex items-center justify-center overflow-hidden rounded-full text-white text-xl  ${bgColor[randomNumber]}`}
+          className={`flex items-center justify-center overflow-hidden rounded-full  text-xl  ${bgColor[randomNumber]}`}
           style={{ width: width + "px", height: height + "px", fontSize: width / 2 }}
         >
           {avatarName}
