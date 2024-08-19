@@ -4,15 +4,15 @@ async function userDetails(request, response) {
   try {
     const token = request.cookies.token || "";
 
-    if (!token) {
-      return response.status(401).json({ message: "No token provided", error: true });
-    }
+    // if (!token) {
+    //   return response.status(401).json({ message: "No token provided", error: true });
+    // }
 
     const user = await getUserDetailsFromToken(token);
 
-    if (user.logout) {
-      return response.status(401).json({ message: user.message, error: true });
-    }
+    // if (user.logout) {
+    //   return response.status(401).json({ message: user.message, error: true });
+    // }
 
     return response.status(200).json({ message: "User details", data: user });
   } catch (error) {

@@ -9,20 +9,21 @@ import { setUser } from "../redux/userSlice";
 
 const EditUserDetails = ({ onClose, user }) => {
   const [data, setData] = useState({
-    name: user?.name || "",
-    profile_pic: user?.profile_pic || "",
+    name: user?.name,
+    profile_pic: user?.profile_pic,
   });
 
   const uploadPhotoRef = useRef();
   const dispatch = useDispatch();
 
   useEffect(() => {
-    console.log("User updated:", user);
-    setData({
-      name: user?.name || "",
-      profile_pic: user?.profile_pic || "",
+    setData((prev) => {
+      return {
+        ...prev,
+        user,
+      };
     });
-  }, []);
+  }, [user]);
 
   const handleOnChange = (e) => {
     const { name, value } = e.target;
@@ -63,11 +64,11 @@ const EditUserDetails = ({ onClose, user }) => {
       });
 
       if (response.data.success) {
-        dispatch(setUser(response.data.message));
+        dispatch(setUser(response.data.data));
+        onClose();
       }
 
       toast.success(response?.data?.message);
-      console.log("Response:", response);
     } catch (error) {
       console.log(error);
       toast.error(error?.response?.data?.message || "Failed to update user.");
