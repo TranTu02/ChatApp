@@ -40,7 +40,7 @@ const Sidebar = () => {
         </div>
         <div className="flex flex-col justify-center items-center  ">
           <button className="mx-auto mb-1 cursor-pointer" onClick={() => setEditUserOpen(true)}>
-            <Avatar width={35} height={35} imageUrl={user.profile_pic} name={user.name} />
+            <Avatar width={35} height={35} imageUrl={user.profile_pic} name={user.name} userID={user?._id} />
           </button>
           <button className="-ml-2 cursor-pointer" title="Log out">
             <BiLogOut size={30} />

@@ -2,7 +2,7 @@ const UserModel = require("../model/UserModel");
 
 async function searchUser(request, response) {
   try {
-    const { searcj } = request.body;
+    const { search } = request.body;
 
     const query = new RegExp(search, "i", "g");
 
@@ -22,3 +22,5 @@ async function searchUser(request, response) {
     });
   }
 }
+
+module.exports = searchUser;
