@@ -5,8 +5,9 @@ import Avatar from "./Avatar";
 import { HiDotsVertical } from "react-icons/hi";
 import { FaAngleLeft, FaImage, FaPlus, FaVideo } from "react-icons/fa6";
 import uploadFile from "../helpers/uploadFile";
-import { IoClose } from "react-icons/io5";
+import { IoClose, IoSend } from "react-icons/io5";
 import Loading from "./Loading";
+import wallpaper from "../assets/wallpaper.jpg";
 
 const MessagePage = () => {
   const params = useParams();
@@ -35,6 +36,9 @@ const MessagePage = () => {
     setLoading(true);
     const uploadPhoto = await uploadFile(file);
     setLoading(false);
+
+    setOpenImageVideoUpload(false);
+
     setMessage((prev) => {
       return {
         ...prev,
@@ -59,6 +63,8 @@ const MessagePage = () => {
     const uploadVideo = await uploadFile(file);
     setLoading(false);
 
+    setOpenImageVideoUpload(false);
+
     setMessage((prev) => {
       return {
         ...prev,
@@ -76,6 +82,34 @@ const MessagePage = () => {
     });
   };
 
+  const handleOnChange = (e) => {
+    const { name, value } = e.target;
+
+    setMessage((prev) => {
+      return {
+        ...prev,
+        text: value,
+      };
+    });
+  };
+
+  const handleSendMessage = (e) => {
+    e.preventDefault();
+
+    if (message.text.trim() !== "" || message.imageUrl || message.videoUrl) {
+      if (socketConnection) {
+        socketConnection.emit("new message", {
+          sender: user?._id,
+          receiver: params.userID,
+          text: message.text,
+          imageUrl: message.imageUrl,
+          videoUrl: message.videoUrl,
+          msgByUserId: user?._id,
+        });
+      }
+    }
+  };
+
   useEffect(() => {
     if (socketConnection) {
       socketConnection.emit("message-page", params.userID);
@@ -87,7 +121,15 @@ const MessagePage = () => {
     }
   }, [socketConnection, params?.userID, user]);
   return (
-    <div>
+    <div
+      style={{
+        backgroundImage: `url(${wallpaper})`,
+        backgroundSize: "cover",
+        backgroundPosition: "center",
+        height: "100vh",
+      }}
+      className="bg-no-repeat "
+    >
       <header className="sticky top-0 h-16 px-3 bg-white flex justify-between items-center">
         <div className="flex flex-row items-center gap-3 ">
           <Link to="/" className="lg:hidden">
@@ -121,10 +163,10 @@ const MessagePage = () => {
       </header>
 
       {/**show all message */}
-      <section className="relative h-[calc(100vh-128px)] overflow-x-hidden overflow-y-scroll scrollbar ">
+      <section className="relative h-[calc(100vh-128px)] overflow-x-hidden overflow-y-scroll scrollbar  bg-slate-200 bg-opacity-15">
         {/**upload image display */}
         {message.imageUrl && (
-          <div className="w-full h-full bg-slate-700 bg-opacity-30 flex justify-center items-center rounded overflow-scroll">
+          <div className="w-full h-full bg-slate-700 bg-opacity-30 flex justify-center items-center rounded overflow-scroll scrollbar">
             <div onClick={handleClearUploadPhoto} className="w-fit p-2 absolute top-0 right-4 hover:text-red-600">
               <IoClose size={30} />
             </div>
@@ -136,7 +178,7 @@ const MessagePage = () => {
 
         {/**upload video display */}
         {message.videoUrl && (
-          <div className="w-full h-full bg-slate-700 bg-opacity-30 flex justify-center items-center rounded overflow-scroll">
+          <div className="w-full h-full bg-slate-700 bg-opacity-30 flex justify-center items-center rounded overflow-scroll scrollbar">
             <div onClick={handleClearUploadVideo} className="w-fit p-2 absolute top-0 right-4 hover:text-red-600">
               <IoClose size={30} />
             </div>
@@ -160,7 +202,7 @@ const MessagePage = () => {
       </section>
 
       {/**send message */}
-      <section className="h-16 bg-white flex items-center">
+      <section className="h-16 bg-white w-full flex items-center pr-3">
         <div className="relative ">
           <button
             onClick={() => setOpenImageVideoUpload((prev) => !prev)}
@@ -197,7 +239,20 @@ const MessagePage = () => {
             </div>
           )}
         </div>
+        <form className="w-full h-full flex gap-2" onSubmit={handleSendMessage}>
+          <input
+            type="text"
+            placeholder="type here message..."
+            className="py-1 px-4 outline-none w-full h-full "
+            value={message.text}
+            onChange={handleOnChange}
+          />
+          <button className="text-primary hover:text-secondary">
+            <IoSend size={30} />
+          </button>
+        </form>
       </section>
+      {/**input box */}
     </div>
   );
 };
