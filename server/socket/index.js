@@ -49,6 +49,20 @@ io.on("connection", async (socket) => {
       online: onlineUser.has(userID),
     };
     socket.emit("message-user", payload);
+
+    //
+
+    //get previous message
+    const getConversationMessage = await ConversationModel.findOne({
+      $or: [
+        { sender: user?._id, receiver: userID },
+        { sender: userID, receiver: user?._id },
+      ],
+    })
+      .populate("messages")
+      .sort({ updateAt: -1 });
+
+    socket.emit("message");
   });
 
   //create a room
@@ -98,8 +112,19 @@ io.on("connection", async (socket) => {
       .populate("messages")
       .sort({ updateAt: -1 });
 
-    io.to(data?.sender).emit("message", getConversationMessage);
+    io.to(data?.sender).emit("message", getConversationMessage.messages);
     io.to(data?.receiver).emit("message", getConversationMessage);
+  });
+
+  //sidebar
+  socket.on("sidebar", async (currentUserId) => {
+    console.log("current userID", currentUserId);
+
+    const currentUserConversation = await ConversationModel.find({
+      $or: [{ sender: currentUserId }, { receiver: currentUserId }],
+    });
+
+    socket.emit("conversation", currentUserConversation);
   });
 
   //disconnect

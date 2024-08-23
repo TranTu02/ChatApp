@@ -52,7 +52,7 @@ const Avatar = ({ userID, name, imageUrl, width, height }) => {
           {avatarName}
         </div>
       ) : (
-        <PiUserCircle className="bg-gray-200 object-cover w-full h-full" />
+        <PiUserCircle className="bg-gray-200 object-cover w-full h-full rounded-full" />
       )}
 
       {isOnline && <div className="bg-green-600 p-1  absolute bottom-2 -right-1 z-10 rounded-full "></div>}

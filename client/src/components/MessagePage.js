@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { useSelector } from "react-redux";
 import { Link, useParams } from "react-router-dom";
 import Avatar from "./Avatar";
@@ -8,6 +8,7 @@ import uploadFile from "../helpers/uploadFile";
 import { IoClose, IoSend } from "react-icons/io5";
 import Loading from "./Loading";
 import wallpaper from "../assets/wallpaper.jpg";
+import moment from "moment";
 
 const MessagePage = () => {
   const params = useParams();
@@ -30,6 +31,15 @@ const MessagePage = () => {
   });
 
   const [loading, setLoading] = useState(false);
+  const [allMessage, setAllMessage] = useState([]);
+  const currentMessage = useRef(null);
+
+  useEffect(() => {
+    if (currentMessage.current) {
+      currentMessage.current.scrollIntoView({ behaivor: "smooth", block: "end" });
+    }
+  }, [allMessage]);
+
   const handleUploadImage = async (e) => {
     const file = e.target.files[0];
 
@@ -106,6 +116,11 @@ const MessagePage = () => {
           videoUrl: message.videoUrl,
           msgByUserId: user?._id,
         });
+        setMessage({
+          text: "",
+          imageUrl: "",
+          videoUrl: "",
+        });
       }
     }
   };
@@ -115,8 +130,12 @@ const MessagePage = () => {
       socketConnection.emit("message-page", params.userID);
 
       socketConnection.on("message-user", (data) => {
-        console.log("user details", data);
         setDataUser(data);
+      });
+
+      socketConnection.on("message", (data) => {
+        console.log("message data", data);
+        setAllMessage(data?.messages ? data?.messages : data);
       });
     }
   }, [socketConnection, params?.userID, user]);
@@ -164,9 +183,34 @@ const MessagePage = () => {
 
       {/**show all message */}
       <section className="relative h-[calc(100vh-128px)] overflow-x-hidden overflow-y-scroll scrollbar  bg-slate-200 bg-opacity-15">
+        {/**display all message */}
+        <div ref={currentMessage} className="flex flex-col py-2 gap-2 mx-2">
+          {Array.isArray(allMessage) &&
+            allMessage?.map((msg, index) => {
+              return (
+                <div
+                  className={` p-1 py-1 my-2 rounded w-fit max-w-[50%] ${
+                    user._id === msg.msgByUserId ? "ml-auto bg-teal-200" : "mr-auto bg-white"
+                  } `}
+                >
+                  <div className="w-full ">
+                    {msg?.imageUrl && <img src={msg?.imageUrl} className="w-full h-full object-scale-down" />}
+                  </div>
+                  <div className="w-full ">
+                    {msg?.videoUrl && (
+                      <video src={msg?.videoUrl} className="w-full h-full object-scale-down" controls />
+                    )}
+                  </div>
+                  <p className="px-2">{msg?.text}</p>
+                  <p className="text-xs ml-auto w-fit">{moment(msg.createAt).format(`hh:mm`)}</p>
+                </div>
+              );
+            })}
+        </div>
+
         {/**upload image display */}
         {message.imageUrl && (
-          <div className="w-full h-full bg-slate-700 bg-opacity-30 flex justify-center items-center rounded overflow-scroll scrollbar">
+          <div className="w-full h-full sticky bottom-0 right-0 bg-slate-700 bg-opacity-30 flex justify-center items-center rounded overflow-scroll scrollbar">
             <div onClick={handleClearUploadPhoto} className="w-fit p-2 absolute top-0 right-4 hover:text-red-600">
               <IoClose size={30} />
             </div>
@@ -178,7 +222,7 @@ const MessagePage = () => {
 
         {/**upload video display */}
         {message.videoUrl && (
-          <div className="w-full h-full bg-slate-700 bg-opacity-30 flex justify-center items-center rounded overflow-scroll scrollbar">
+          <div className="w-full h-full sticky bg-slate-700 bg-opacity-30 flex justify-center items-center rounded overflow-scroll scrollbar">
             <div onClick={handleClearUploadVideo} className="w-fit p-2 absolute top-0 right-4 hover:text-red-600">
               <IoClose size={30} />
             </div>
@@ -194,8 +238,9 @@ const MessagePage = () => {
             </div>
           </div>
         )}
+
         {loading && (
-          <div className="w-full h-full flex items-center justify-center">
+          <div className="w-full h-full sticky flex items-center justify-center">
             <Loading />
           </div>
         )}
