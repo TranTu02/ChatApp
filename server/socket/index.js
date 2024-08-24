@@ -122,9 +122,26 @@ io.on("connection", async (socket) => {
 
     const currentUserConversation = await ConversationModel.find({
       $or: [{ sender: currentUserId }, { receiver: currentUserId }],
+    })
+      .sort({ updateAt: -1 })
+      .populate("messages")
+      .populate("sender")
+      .populate("receiver");
+
+    console.log("Current user conversation: ", currentUserConversation);
+    const conversation = currentUserConversation.map((conv) => {
+      const countUnseenMsg = conv.messages.reduce((prev, curr) => prev + (curr.seen ? 1 : 0), 0);
+      console.log("LAST MESSAGE: ", conv.messages);
+      return {
+        _id: conv?._id,
+        sender: conv?.sender,
+        receiver: conv?.receiver,
+        unssenMessage: countUnseenMsg,
+        lastMsg: conv.messages[conv?.messages?.length - 1],
+      };
     });
 
-    socket.emit("conversation", currentUserConversation);
+    socket.emit("conversation", conversation);
   });
 
   //disconnect

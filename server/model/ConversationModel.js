@@ -39,6 +39,7 @@ const conversationSchema = new mongoose.Schema(
     receiver: {
       type: mongoose.Schema.ObjectId,
       required: true,
+      ref: "User",
     },
     messages: [
       {

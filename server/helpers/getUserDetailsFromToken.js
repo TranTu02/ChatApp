@@ -9,11 +9,40 @@ const getUserDetailsFromToken = async (token) => {
     };
   }
 
-  const decoded = await jwt.verify(token, process.env.JWT_SECRET_KEY);
+  try {
+    // Xác minh và giải mã token
+    const decoded = await jwt.verify(token, process.env.JWT_SECRET_KEY);
 
-  const user = await UserModel.findById(decoded.id).select("-password");
+    // Tìm người dùng từ ID đã giải mã
+    const user = await UserModel.findById(decoded.id).select("-password");
 
-  return user;
+    // Nếu người dùng không tồn tại
+    if (!user) {
+      return {
+        message: "User not found",
+        logout: true,
+      };
+    }
+
+    return user;
+  } catch (error) {
+    if (error.name === "TokenExpiredError") {
+      return {
+        message: "Token expired",
+        logout: true,
+      };
+    } else if (error.name === "JsonWebTokenError") {
+      return {
+        message: "Invalid token",
+        logout: true,
+      };
+    } else {
+      return {
+        message: "An error occurred",
+        logout: true,
+      };
+    }
+  }
 };
 
 module.exports = getUserDetailsFromToken;
