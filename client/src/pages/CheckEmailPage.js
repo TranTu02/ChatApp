@@ -71,10 +71,10 @@ const CheckEmailPage = () => {
           </button>
 
           <p className="mb-2 text-center">
-            Already have account ?
-            <Link to={"/password"} className="hover:text-primary font-semibold">
+            Don't have account ?
+            <Link to={"/register"} className="hover:text-primary font-semibold">
               {" "}
-              Login
+              Register
             </Link>
           </p>
         </form>

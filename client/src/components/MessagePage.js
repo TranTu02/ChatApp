@@ -116,6 +116,7 @@ const MessagePage = () => {
           videoUrl: message.videoUrl,
           msgByUserId: user?._id,
         });
+
         setMessage({
           text: "",
           imageUrl: "",
@@ -129,6 +130,8 @@ const MessagePage = () => {
     if (socketConnection) {
       socketConnection.emit("message-page", params.userID);
 
+      socketConnection.emit("seen", params.userID);
+
       socketConnection.on("message-user", (data) => {
         setDataUser(data);
       });
@@ -137,8 +140,13 @@ const MessagePage = () => {
         console.log("message data", data);
         setAllMessage(data?.messages ? data?.messages : data);
       });
+
+      return () => {
+        socketConnection.off("message-user");
+        socketConnection.off("message");
+      };
     }
-  }, [socketConnection, params?.userID, user]);
+  }, [socketConnection, params.userID, user]);
   return (
     <div
       style={{
@@ -147,7 +155,7 @@ const MessagePage = () => {
         backgroundPosition: "center",
         height: "100vh",
       }}
-      className="bg-no-repeat "
+      className=" bg-no-repeat"
     >
       <header className="sticky top-0 h-16 px-3 bg-white flex justify-between items-center">
         <div className="flex flex-row items-center gap-3 ">
@@ -182,13 +190,14 @@ const MessagePage = () => {
       </header>
 
       {/**show all message */}
-      <section className="relative h-[calc(100vh-128px)] overflow-x-hidden overflow-y-scroll scrollbar  bg-slate-200 bg-opacity-15">
+      <section className=" h-[calc(100vh-128px)] overflow-x-hidden overflow-y-auto scrollbar  bg-slate-200 bg-opacity-15">
         {/**display all message */}
         <div ref={currentMessage} className="flex flex-col py-2 gap-2 mx-2">
           {Array.isArray(allMessage) &&
             allMessage?.map((msg, index) => {
               return (
                 <div
+                  key={msg?._id}
                   className={` p-1 py-1 my-2 rounded w-fit max-w-[50%] ${
                     user._id === msg.msgByUserId ? "ml-auto bg-teal-200" : "mr-auto bg-white"
                   } `}
@@ -210,7 +219,7 @@ const MessagePage = () => {
 
         {/**upload image display */}
         {message.imageUrl && (
-          <div className="w-full h-full sticky bottom-0 right-0 bg-slate-700 bg-opacity-30 flex justify-center items-center rounded overflow-scroll scrollbar">
+          <div className="w-full h-full sticky bottom-0 right-0 bg-slate-700 bg-opacity-30 flex justify-center items-center rounded overflow-auto scrollbar">
             <div onClick={handleClearUploadPhoto} className="w-fit p-2 absolute top-0 right-4 hover:text-red-600">
               <IoClose size={30} />
             </div>
@@ -222,7 +231,7 @@ const MessagePage = () => {
 
         {/**upload video display */}
         {message.videoUrl && (
-          <div className="w-full h-full sticky bg-slate-700 bg-opacity-30 flex justify-center items-center rounded overflow-scroll scrollbar">
+          <div className="w-full h-full sticky bg-slate-700 bg-opacity-30 flex justify-center items-center rounded overflow-auto scrollbar">
             <div onClick={handleClearUploadVideo} className="w-fit p-2 absolute top-0 right-4 hover:text-red-600">
               <IoClose size={30} />
             </div>
